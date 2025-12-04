@@ -1,0 +1,98 @@
+spring:
+  application:
+    name: manga-server
+
+  datasource:
+    # 优先使用服务端自动提供的 MYSQL_ 变量，否则用 DB_ 变量，最后用默认值
+    url: jdbc:mysql://${MYSQL_HOST:localhost}:${MYSQL_PORT:3306}/${MYSQL_DATABASE:manga_db}?useUnicode=true&characterEncoding=utf8&useSSL=false&serverTimezone=Asia/Shanghai&cachePrepStmts=true&useServerPrepStmts=true&rewriteBatchedStatements=true
+    username: ${MYSQL_USERNAME:root}
+    password: ${MYSQL_PASSWORD:}
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    # HikariCP 连接池配置（支持高并发）
+    hikari:
+      minimum-idle: 10
+      maximum-pool-size: 50
+      idle-timeout: 600000
+      max-lifetime: 1800000
+      connection-timeout: 30000
+      pool-name: MangaHikariPool
+
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: false
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.MySQLDialect
+        format_sql: false
+        # 二级缓存配置
+        cache:
+          use_second_level_cache: false
+          use_query_cache: false
+        # 批量操作优化
+        jdbc:
+          batch_size: 20
+        order_inserts: true
+        order_updates: true
+        # 查询优化
+        default_batch_fetch_size: 10
+
+  data:
+    redis:
+      host: ${REDIS_HOST:localhost}
+      port: ${REDIS_PORT:6379}
+      password: ${REDIS_PASSWORD:}
+      database: ${REDIS_DATABASE:1}
+      timeout: 10000ms
+      # Lettuce 连接池配置（优化性能）
+      lettuce:
+        pool:
+          max-active: 50      # 最大连接数（支持高并发）
+          max-wait: 10000ms   # 最大等待时间
+          max-idle: 20        # 最大空闲连接
+          min-idle: 10        # 最小空闲连接
+        shutdown-timeout: 200ms
+      # 连接超时
+      connect-timeout: 5000ms
+
+  servlet:
+    multipart:
+      max-file-size: 10MB
+      max-request-size: 10MB
+
+server:
+  # 优先使用服务端的 PORT 变量
+  port: ${PORT:${SERVER_PORT:8080}}
+
+jwt:
+  secret: ${JWT_SECRET:your-secret-key-change-this-in-production-must-be-at-least-256-bits}
+  expiration: ${JWT_EXPIRATION:86400000} # 24 hours in milliseconds
+
+# CDN 配置
+cdn:
+  base-url: ${CDN_BASE_URL:https://your-bucket.r2.dev}
+  enabled: ${CDN_ENABLED:true}
+  cache-max-age: ${CDN_CACHE_MAX_AGE:2592000}
+  fallback-url: ${CDN_FALLBACK_URL:}
+
+springdoc:
+  api-docs:
+    path: /api-docs
+    enabled: true
+  swagger-ui:
+    path: /swagger-ui.html
+  writer-with-default-pretty-printer: true
+
+# 轮播图配置 (JSON 格式环境变量)
+# 环境变量: BANNER_JSON
+# 示例: [{"image":"/banners/banner1.jpg","title":"热门推荐","link":"/manga/1","mangaId":1,"sortOrder":0,"enabled":true}]
+banner:
+  json: ${BANNER_JSON:[]}
+
+# 公告配置 (JSON 格式环境变量)
+# 环境变量: ANNOUNCEMENT_JSON
+# 示例: [{"title":"系统维护通知","content":"系统将于今晚进行维护","type":"info","link":"/notice/1","sortOrder":0,"enabled":true}]
+announcement:
+  json: ${ANNOUNCEMENT_JSON:[]}
+
+
