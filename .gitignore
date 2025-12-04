@@ -39,5 +39,4 @@ build/
 application-local.yml
 application-prod.yml
 
-*.md
 *.example
